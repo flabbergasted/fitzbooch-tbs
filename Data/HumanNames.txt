@@ -1,0 +1,51 @@
+﻿:FIRST NAME:
+Karl
+Joss
+Stra
+Yohn
+Vlad
+Will
+Phillip
+Geor
+James
+
+:SECOND NAME:
+ack
+on
+offon
+rey
+tull
+%
+%
+%
+%
+%
+
+:LAST NAME:
+ Royce
+ Rekk
+ Harlaw
+ Teppet
+ Wick
+ Gord
+
+:SECOND NAME:
+-Jon
+ro
+fop
+trel
+let
+ton
+toone
+loo
+-Vickman
+ The Firm
+ The Cruel
+ Ironsides
+ Halfhand
+ Brightsmile
+%
+%
+%
+%
+%
