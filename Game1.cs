@@ -26,7 +26,7 @@ namespace TurnBasedStrategy
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            Unit uUnit1 = new Unit(75, 15, WeaponType.Sword, MetalType.Iron, MetalType.Iron);
+            Unit uUnit1 = new Unit(80, 15, WeaponType.Sword, MetalType.Iron, MetalType.Iron);
             Unit uUnit2 = new Unit(75, 15, WeaponType.Sword , MetalType.Iron, MetalType.Iron);
 
             uUnit1.AddOpponent(uUnit2);
