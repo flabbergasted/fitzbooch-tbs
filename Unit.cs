@@ -30,6 +30,7 @@ namespace TurnBasedStrategy
         private List<Unit> CurrentOpponents = new List<Unit>();
         private Int32 DefaultSoldierCount = 100;
         private Int32 DefaultMorale = 10;
+        private Random ran;
 
         public Unit()
         {
@@ -40,6 +41,7 @@ namespace TurnBasedStrategy
             ArmorMetalType = MetalType.None;
             WeaponMetalType = MetalType.None;
             CommanderName = NameGenerator.GenerateName(Species.Human);
+            ran = new Random();
         }
 
         public Unit(Int32 iSoldierCount, Int32 iTotalMorale,WeaponType wWeaponType , MetalType iWeaponMetalType, MetalType iArmorMetalType)
@@ -52,6 +54,7 @@ namespace TurnBasedStrategy
             this.ArmorMetalType = iArmorMetalType;
             this.Weapon = wWeaponType;
             CommanderName = NameGenerator.GenerateName(Species.Human);
+            ran = new Random();
         }
 
         public void ReplenishSoldiers(int Replenishment)
@@ -228,6 +231,16 @@ namespace TurnBasedStrategy
             }
         }
 
+        //returns a randomized value between .2 and .25 
+        private double getRandomBaseDamage()
+        {
+
+            double ran1 = ran.Next(20, 25);
+
+            return ran1/100;
+            
+        }
+
         //Processes the battles this unit is a part of.
         public void ProcessBattles()
         {
@@ -237,6 +250,7 @@ namespace TurnBasedStrategy
             double enemymoraleaffect = 1;
             double resist = 0;
             double enemyresist = 0;
+            double randDamage = .2;
             Unit uOpponent;
 
             for (int i = 0; i < CurrentOpponents.Count; i++)
@@ -244,9 +258,11 @@ namespace TurnBasedStrategy
                 uOpponent = CurrentOpponents.ElementAt(i);
 
                 //base damage reflects how many soldiers total you're going to kill
-                //it starts out as 20% of your soldier count
-                double enemybasedamage = (double)uOpponent.SoldierCount * .2;
-                double basedamage = (double)SoldierCount * .2;
+                //it's randomized between .2 and .25
+                randDamage = getRandomBaseDamage();
+                double enemybasedamage = (double)uOpponent.SoldierCount * randDamage;
+                randDamage = getRandomBaseDamage();
+                double basedamage = (double)SoldierCount * randDamage;
 
                 //the 'damage' variable represents the modifier to your basedamage.  This 'damage' number
                 //incorporates morale, equipment metal type, and charge bonus
