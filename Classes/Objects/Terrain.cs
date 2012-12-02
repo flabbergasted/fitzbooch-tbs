@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TurnBasedStrategy
 {
-    class Terrain
+    class Terrain : Object
     {
         public Int32 TerrainHeight;
         public bool NorthPassable;
