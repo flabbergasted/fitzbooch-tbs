@@ -57,6 +57,7 @@ namespace TurnBasedStrategy
             ran = new Random();
         }
 
+        //'heals' casualties by the a specified amount, capped by max size
         public void ReplenishSoldiers(int Replenishment)
         {
             SoldierCount = SoldierCount + Replenishment;
@@ -67,6 +68,7 @@ namespace TurnBasedStrategy
             }
         }
 
+        //'kills' soldiers by the a specified amount, if the soldier count is brought to <= 0, destroy the unit
         public void KillSoldiers(int Damage)
         {
             SoldierCount = SoldierCount - Damage;
@@ -78,6 +80,7 @@ namespace TurnBasedStrategy
             }
         }
 
+        //destroys the unit, recording a victory for any unit it was engaged with
         public void KillUnit()
         {
             for (int i = 0; i < CurrentOpponents.Count; i++)
@@ -91,17 +94,19 @@ namespace TurnBasedStrategy
             }
         }
 
-
+        //increments victory counter, which will influence how experienced a unit is (and commanders stats?)
         public void RecordVictory()
         {
             BattlesWon = BattlesWon + 1;
         }
 
+        //increments battles lost counter, which will negatively influence a units experience (and commanders stats?)
         public void RecordLoss()
         {
             BattlesLost = BattlesLost + 1;
         }
 
+        //returns the relevant Charge bonus for the ChargingUnit relative to the DefendingUnit
         public double GetChargeBonus(Unit ChargingUnit, Unit DefendingUnit)
         {
             double result;
@@ -119,6 +124,7 @@ namespace TurnBasedStrategy
                 result = result + 1;
             }
 
+            //charges are less effective against spears than normal attacks
             if (DefendingUnit.Weapon == WeaponType.Spear)
             {
                 result = .9;
@@ -127,10 +133,13 @@ namespace TurnBasedStrategy
             return result;
         }
 
+        //increases morale of unit by a set amount
         public void RaiseMorale(int MoraleAmountToRaise)
         {
             TotalMorale = TotalMorale + MoraleAmountToRaise;
         }
+
+        //provides a small morale boost to a units morale (usually as a result of positive battle happenings)
         public void MoraleBonus()
         {
             CurrentMorale = CurrentMorale + 1;
@@ -141,6 +150,7 @@ namespace TurnBasedStrategy
             }
         }
 
+        //provides a small decrement to a units morale (usually as a result of negative battle happenings)
         public void MoraleShock()
         {
             CurrentMorale = CurrentMorale - 1;
@@ -150,6 +160,7 @@ namespace TurnBasedStrategy
                 CurrentMorale = 0;
             }
 
+            //if the units morale is 10% of it's starting value, start routing (drop weapons, lose battles, etc.)
             if (((double)CurrentMorale / TotalMorale) < .1)
             {
                 Weapon = WeaponType.None;
@@ -174,12 +185,14 @@ namespace TurnBasedStrategy
             }
         }
 
+        //adds to this units opponents list
         public void AddOpponent(Unit Opponent)
         {
             CurrentOpponents.Add(Opponent);
             Opponent.CurrentOpponents.Add(this);
         }
 
+        //calculate morale shocks based on 2 fighting units numbers and equipment
         public void CalculateMorale(Unit UnitA, Unit UnitB)
         {
             if (UnitA.SoldierCount > ((double)UnitB.SoldierCount * 1.2))
@@ -213,6 +226,8 @@ namespace TurnBasedStrategy
             }
         }
 
+        //calculates the morale shocks to be administered to the losing side of one 'round' of combat
+        //decided by who did more damage as a percent of total soldiers.
         public void CalculatePostBattleMorale(double UnitADmg, double UnitBDmg, Unit UnitA, Unit UnitB)
         {
             double Apercentdmg;
@@ -282,6 +297,11 @@ namespace TurnBasedStrategy
                 {
                     enemybasedamage = enemybasedamage * uOpponent.GetChargeBonus(uOpponent, this);
                 }
+
+                //The type of weapon you wield determines how effective you are in combat
+                //Swords have no +/- effect, while axes are do 10% less damage, but have a better charge bonus.
+                //Spears perform the worst in melee combat, unless against mounted opponents
+                //no weapon means you are half as effective.
                 switch (Weapon)
                 {
                     case WeaponType.Sword:
@@ -391,14 +411,16 @@ namespace TurnBasedStrategy
                 }
 
                 //your max damage is affected by how good enemy armor is, same vs same metal 
-                //type results in a damage of 1 (which represents 100%).  
-                //If you have a step above you get a 10% boost per step up
+                //type results in a damage of 1, which means no damage change.
+                //If you have a step above (EX Steel weapon vs Iron armor) you get a 10% boost per step up.
                 damage = damage - enemyresist;
                 enemydamage = enemydamage - resist;
 
 
                 //If you have less than 25% of your total morale, then your morale effect is only 80% effective (.8)
+                //which means 20% less damage
                 //If you have less than 50% of your total morale, then your morale effect is only 90% effective (.9)
+                //which means 10% less damage
                 //same calculation for opponents
                 if (((double)CurrentMorale / TotalMorale) < .25)
                 {
@@ -418,13 +440,15 @@ namespace TurnBasedStrategy
                     enemymoraleaffect = .9;
                 }
                 
-                //damage = ((double)SoldierCount / TotalSoldierCount) * moraleaffect * damage;
-                //enemydamage = ((double)uOpponent.SoldierCount / uOpponent.TotalSoldierCount) * enemymoraleaffect * enemydamage;
-
                 //your current morale affects your max damage
                 damage = moraleaffect * damage;
                 enemydamage = enemymoraleaffect * enemydamage;
 
+                //basedamage represents how many soldiers you can kill
+                //damage represents how much to increase or decrease this base amount based on morale and equipment differences.
+                //EX. your base damage is 20 soldiers killed per round, you are charging so you get a 20% boost (20 * 1.2)
+                //so your base damage becomes 24 soldiers killed in this round.
+                //your total number of soldiers killed is spread evenly between all you're current opponents.
                 basedamage = (basedamage * damage)/ CurrentOpponents.Count;
                 enemybasedamage = (enemybasedamage * enemydamage)/ uOpponent.CurrentOpponents.Count;
 
