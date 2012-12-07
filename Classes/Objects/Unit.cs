@@ -25,7 +25,8 @@ namespace TurnBasedStrategy
         public bool ChargeBonus = false;
         public bool IsRouting = false;
         public WeaponType Weapon = WeaponType.None;
-        public Vector2 Position;
+        public Terrain CurrentPosition;
+        public Terrain Destination;
 
         private List<Unit> CurrentOpponents = new List<Unit>();
         private Int32 DefaultSoldierCount = 100;

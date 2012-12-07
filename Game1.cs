@@ -28,6 +28,19 @@ namespace TurnBasedStrategy
 
             Unit uUnit1 = new Unit(80, 15, WeaponType.Sword, MetalType.Iron, MetalType.Iron);
             Unit uUnit2 = new Unit(80, 15, WeaponType.Sword, MetalType.Iron, MetalType.Iron);
+            Terrain tt = new Terrain();
+
+            tt.AddNeighboringTerrain(Directions.North, new Terrain());
+            tt.AddNeighboringTerrain(Directions.NorthEast, new Terrain(new List<Directions>{Directions.SouthWest, Directions.South}));
+
+            tt.IsDirectionTravelable(Directions.North);
+            tt.IsDirectionTravelable(Directions.NorthWest);
+            tt.IsDirectionTravelable(Directions.NorthEast);
+            tt.IsDirectionTravelable(Directions.South);
+            tt.IsDirectionTravelable(Directions.SouthWest);
+            tt.IsDirectionTravelable(Directions.SouthEast);
+            tt.IsDirectionTravelable(Directions.East);
+            tt.IsDirectionTravelable(Directions.West);
 
             uUnit1.AddOpponent(uUnit2);
             while (true)
