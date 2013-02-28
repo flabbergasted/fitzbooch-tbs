@@ -1,0 +1,1 @@
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\Content\obj\x86\Debug\ResolveAssemblyReference.cache

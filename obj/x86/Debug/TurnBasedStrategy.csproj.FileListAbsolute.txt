@@ -5,3 +5,10 @@ C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBased
 C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\obj\x86\Debug\TurnBasedStrategy.exe
 C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\obj\x86\Debug\TurnBasedStrategy.pdb
 C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\bin\x86\Debug\Data\HumanNames.txt
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\bin\x86\Debug\Data\HumanNames.txt
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\bin\x86\Debug\TurnBasedStrategy.exe
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\bin\x86\Debug\TurnBasedStrategy.pdb
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\obj\x86\Debug\TurnBasedStrategy.exe
+C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\obj\x86\Debug\TurnBasedStrategy.pdb

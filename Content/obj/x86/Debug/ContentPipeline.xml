@@ -4,17 +4,18 @@
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <TargetPlatform>Windows</TargetPlatform>
+      <TargetProfile>HiDef</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\Content\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\Content\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Brian\Documents\Visual Studio 2008\Projects\TurnBasedStrategy\TurnBasedStrategy\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\Content\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\Content\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Brian\Documents\Visual Studio 2010\Projects\TurnBasedStrategy\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
-        <Key>C:\Windows\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2011-09-19T20:44:36.0049899-04:00</Value>
+        <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
+        <Value>2013-02-28T00:20:20.8709426-05:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>
