@@ -43,14 +43,14 @@ namespace TurnBasedStrategy
             ran = new Random();
         }
 
-        public Unit(Int32 iSoldierCount, Int32 iTotalMorale,WeaponType wWeaponType , MetalType iWeaponMetalType, MetalType iArmorMetalType)
+        public Unit(Int32 iSoldierCount, Int32 iTotalMorale, Weapon wWeapon, Armor aArmor)
         {
             this.SoldierCount = iSoldierCount;
             this.TotalSoldierCount = iSoldierCount;
             this.TotalMorale = iTotalMorale;
             this.CurrentMorale = iTotalMorale;
-            Weapon = new Weapon(wWeaponType, new Metal(iWeaponMetalType));
-            Armor = new Armor(new Metal(iArmorMetalType));
+            Weapon = wWeapon;
+            Armor = aArmor;
             CommanderName = NameGenerator.GenerateName(Species.Human);
             ran = new Random();
         }        

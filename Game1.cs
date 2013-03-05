@@ -26,9 +26,9 @@ namespace TurnBasedStrategy
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
-            Unit uUnit1 = new Unit(80, 15, WeaponType.Sword, MetalType.Iron, MetalType.Iron);
-            Unit uUnit2 = new Unit(80, 15, WeaponType.Sword, MetalType.Iron, MetalType.Iron);
+            Metal steel = new Metal(MetalType.Steel);
+            Unit uUnit1 = new Unit(80, 15, new Weapon(WeaponType.Sword, steel), new Armor(steel));
+            Unit uUnit2 = new Unit(80, 15, new Weapon(WeaponType.Axe, steel), new Armor(steel));
             Terrain tt = new Terrain();
 
             tt.AddNeighboringTerrain(Directions.North, new Terrain());
@@ -44,6 +44,7 @@ namespace TurnBasedStrategy
             tt.IsDirectionTravelable(Directions.West);
 
             uUnit1.AddOpponent(uUnit2);
+            uUnit2.ChargeBonus = true;
             while (true)
             {
             uUnit1.ProcessBattles();
