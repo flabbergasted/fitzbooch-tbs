@@ -11,7 +11,7 @@ namespace TurnBasedStrategy
         static StreamReader srReader;
         static Array NameCategories;
         static Array SpecificNames;
-        static Random ran;
+        static Random ran = new Random();
   
         public static String GenerateName(Species species)
         {
@@ -22,7 +22,6 @@ namespace TurnBasedStrategy
             switch (species)
             {
                 case Species.Human:
-                    ran = new Random();
                     srReader = new StreamReader("Data/HumanNames.txt");                 
                     break;
                 default:
