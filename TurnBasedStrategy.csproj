@@ -118,7 +118,10 @@
   <ItemGroup>
     <Compile Include="Classes\Helpers\NameGenerator.cs" />
     <Compile Include="Classes\Helpers\Navigator.cs" />
+    <Compile Include="Classes\Objects\Items\Armor.cs" />
+    <Compile Include="Classes\Objects\Items\Metal.cs" />
     <Compile Include="Classes\Objects\Object.cs" />
+    <Compile Include="Classes\Objects\Items\Weapon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />

@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using TurnBasedStrategy.Classes.Objects.Items;
 
 namespace TurnBasedStrategy
 {
-    enum MetalType {None = 0, Copper, Bronze, Iron, Steel };
     enum Species { Human = 0 };
-    enum WeaponType { None = 0, Sword, Axe, Spear, Bow };
     class Unit : Object
     {
         public Int32 CurrentMorale;
         public Int32 TotalMorale;
         public Int32 SoldierCount;
         public Int32 TotalSoldierCount;
-        public MetalType ArmorMetalType;
-        public MetalType WeaponMetalType;
         public Int32 Loyalty;
         public String CommanderName;
         public Int32 BattlesWon = 0;
@@ -24,10 +21,11 @@ namespace TurnBasedStrategy
         public bool IsMounted = false;
         public bool ChargeBonus = false;
         public bool IsRouting = false;
-        public WeaponType Weapon = WeaponType.None;
         public Terrain CurrentPosition;
         public Terrain Destination;
-
+        
+        private Weapon Weapon;
+        private Armor Armor;
         private List<Unit> CurrentOpponents = new List<Unit>();
         private Int32 DefaultSoldierCount = 100;
         private Int32 DefaultMorale = 10;
@@ -39,8 +37,8 @@ namespace TurnBasedStrategy
             TotalSoldierCount = DefaultSoldierCount;
             TotalMorale = DefaultMorale;
             CurrentMorale = DefaultMorale;
-            ArmorMetalType = MetalType.None;
-            WeaponMetalType = MetalType.None;
+            Armor = new Armor();
+            Weapon = new Weapon();
             CommanderName = NameGenerator.GenerateName(Species.Human);
             ran = new Random();
         }
@@ -51,12 +49,11 @@ namespace TurnBasedStrategy
             this.TotalSoldierCount = iSoldierCount;
             this.TotalMorale = iTotalMorale;
             this.CurrentMorale = iTotalMorale;
-            this.WeaponMetalType = iWeaponMetalType;
-            this.ArmorMetalType = iArmorMetalType;
-            this.Weapon = wWeaponType;
+            Weapon = new Weapon(wWeaponType, new Metal(iWeaponMetalType));
+            Armor = new Armor(new Metal(iArmorMetalType));
             CommanderName = NameGenerator.GenerateName(Species.Human);
             ran = new Random();
-        }
+        }        
 
         //'heals' casualties by the a specified amount, capped by max size
         public void ReplenishSoldiers(int Replenishment)
@@ -112,21 +109,15 @@ namespace TurnBasedStrategy
         {
             double result;
 
-            if (ChargingUnit.Weapon == WeaponType.Axe)
-            {
-                result = 1.2;
-            }
-            else
-            {
-                result = 1.1;
-            }
+            result = ChargingUnit.Weapon.GetChargingDamage();
+
             if (ChargingUnit.IsMounted)
             {
                 result = result + 1;
             }
 
             //charges are less effective against spears than normal attacks
-            if (DefendingUnit.Weapon == WeaponType.Spear)
+            if (DefendingUnit.Weapon.DoesStopCharge())
             {
                 result = .9;
             }
@@ -160,30 +151,35 @@ namespace TurnBasedStrategy
             {
                 CurrentMorale = 0;
             }
-
             //if the units morale is 10% of it's starting value, start routing (drop weapons, lose battles, etc.)
             if (((double)CurrentMorale / TotalMorale) < .1)
             {
-                Weapon = WeaponType.None;
-                WeaponMetalType = MetalType.None;
-                ArmorMetalType = MetalType.None;
-
-                if (!IsRouting)
-                {
-                    RecordLoss();
-                }
-
-                IsRouting = true;
-                for (int i = 0; i < CurrentOpponents.Count; i++)
-                {
-                    Unit uUnit;
-                    uUnit = CurrentOpponents.ElementAt(i);
-                    uUnit.MoraleBonus();
-                    uUnit.RecordVictory();
-                    uUnit.CurrentOpponents.Remove(this);
-                }
-                CurrentOpponents.Clear();
+                Route();
             }
+            
+        }
+
+        //Cause this unit to route
+        public void Route()
+        {
+            Weapon = new Weapon();
+            Armor = new Armor(); 
+            
+            if (!IsRouting)
+            {
+                RecordLoss();
+            }
+
+            IsRouting = true;
+            for (int i = 0; i < CurrentOpponents.Count; i++)
+            {
+                Unit uUnit;
+                uUnit = CurrentOpponents.ElementAt(i);
+                uUnit.MoraleBonus();
+                uUnit.RecordVictory();
+                uUnit.CurrentOpponents.Remove(this);
+            }
+            CurrentOpponents.Clear();
         }
 
         //adds to this units opponents list
@@ -194,7 +190,7 @@ namespace TurnBasedStrategy
         }
 
         //calculate morale shocks based on 2 fighting units numbers and equipment
-        public void CalculateMorale(Unit UnitA, Unit UnitB)
+        public void CalculateMoraleShocks(Unit UnitA, Unit UnitB)
         {
             if (UnitA.SoldierCount > ((double)UnitB.SoldierCount * 1.2))
             {
@@ -216,15 +212,32 @@ namespace TurnBasedStrategy
                 UnitA.MoraleShock();
             }
 
-            if (UnitB.ArmorMetalType > UnitA.ArmorMetalType)
+            if (UnitB.Armor > UnitA.Armor)
             {
                 UnitA.MoraleShock();
             }
 
-            if(UnitA.ArmorMetalType > UnitB.ArmorMetalType)
+            if(UnitA.Armor > UnitB.Armor)
             {
                 UnitB.MoraleShock();
             }
+        }
+
+        //gets the modifier to apply to your damage (1 means no affect, .8 means 80% effective, .9 means 90% effective)
+        public double GetMoraleEffect()
+        {
+            double moraleaffect = 1;
+
+            if (((double)CurrentMorale / TotalMorale) < .25)
+            {
+                moraleaffect = .8;
+            }
+            else if (((double)CurrentMorale / TotalMorale) < .5)
+            {
+                moraleaffect = .9;
+            }
+
+            return moraleaffect;
         }
 
         //calculates the morale shocks to be administered to the losing side of one 'round' of combat
@@ -273,17 +286,20 @@ namespace TurnBasedStrategy
             {
                 uOpponent = CurrentOpponents.ElementAt(i);
 
-                //base damage reflects how many soldiers total you're going to kill
-                //it's randomized between .2 and .25
+                //Battle damage is calculated using 2 numbers myKillsInflicted and damage
+                //myKillsInflicted: this is the actual number of enemy soldiers you will kill.  
+                //        -This number is affected by luck (random number), weapon type, being mounted and charge bonus.
+                //damage: this number is a modifier that gets applied to your myKillsInflicted in the form 
+                //of a percentage represented by a floating point number.
+                //        -This number is affected by 
+                //            -what metal your weapon is made of vs what metal your opponents armor is made of
+                //            -your current morale relative to your max morale
                 randDamage = getRandomBaseDamage();
-                double enemybasedamage = (double)uOpponent.SoldierCount * randDamage;
+                double enemyKillsInflicted = (double)uOpponent.SoldierCount * randDamage;
                 randDamage = getRandomBaseDamage();
-                double basedamage = (double)SoldierCount * randDamage;
-
-                //the 'damage' variable represents the modifier to your basedamage.  This 'damage' number
-                //incorporates morale, equipment metal type, and charge bonus
-
-                CalculateMorale(this, uOpponent);
+                double myKillsInflicted = (double)SoldierCount * randDamage;
+                
+                CalculateMoraleShocks(this, uOpponent);
 
                 if ((this.IsRouting ) || (uOpponent.IsRouting))
                 {
@@ -292,172 +308,56 @@ namespace TurnBasedStrategy
 
                 if (ChargeBonus)
                 {
-                    basedamage = basedamage * GetChargeBonus(this, uOpponent);
+                    myKillsInflicted = myKillsInflicted * GetChargeBonus(this, uOpponent);
                 }
                 if (uOpponent.ChargeBonus)
                 {
-                    enemybasedamage = enemybasedamage * uOpponent.GetChargeBonus(uOpponent, this);
+                    enemyKillsInflicted = enemyKillsInflicted * uOpponent.GetChargeBonus(uOpponent, this);
                 }
 
                 //The type of weapon you wield determines how effective you are in combat
                 //Swords have no +/- effect, while axes are do 10% less damage, but have a better charge bonus.
                 //Spears perform the worst in melee combat, unless against mounted opponents
                 //no weapon means you are half as effective.
-                switch (Weapon)
-                {
-                    case WeaponType.Sword:
-                        break;
-                    case WeaponType.Axe:
-                        basedamage = basedamage * .9;
-                        break;
-                    case WeaponType.Spear:
-                        if (uOpponent.IsMounted) { basedamage = basedamage * 1.2; }
-                        else{basedamage = basedamage * .75;}                        
-                        break;
-                    default:
-                        basedamage = basedamage * .5;
-                        break;
-                }
+                myKillsInflicted = myKillsInflicted * Weapon.GetKillsModifier(uOpponent.IsMounted);
+                enemyKillsInflicted = enemyKillsInflicted * uOpponent.Weapon.GetKillsModifier(IsMounted);
 
-                switch (uOpponent.Weapon)
-                {
-                    case WeaponType.Sword:
-                        break;
-                    case WeaponType.Axe:
-                        enemybasedamage = enemybasedamage * .9;
-                        break;
-                    case WeaponType.Spear:
-                        if (IsMounted) { enemybasedamage = enemybasedamage * 1.2; }
-                        else { enemybasedamage = enemybasedamage * .75; }
-                        break;
-                    default:
-                        enemybasedamage = enemybasedamage * .5;
-                        break;
-                }
+                resist = Armor.GetResist();
+                enemyresist = uOpponent.Armor.GetResist();
 
-                switch (ArmorMetalType)
-                {
-                    case MetalType.Copper:
-                        resist = .1;
-                        break;
-                    case MetalType.Bronze:
-                        resist = .2;
-                        break;
-                    case MetalType.Iron:
-                        resist = .3;
-                        break;
-                    case MetalType.Steel:
-                        resist = .4;
-                        break;
-                    default:
-                        resist = 0;
-                        break;
-                }
-
-                switch (uOpponent.ArmorMetalType)
-                {
-                    case MetalType.Copper:
-                        enemyresist = .1;
-                        break;
-                    case MetalType.Bronze:
-                        enemyresist = .2;
-                        break;
-                    case MetalType.Iron:
-                        enemyresist = .3;
-                        break;
-                    case MetalType.Steel:
-                        enemyresist = .4;
-                        break;
-                    default:
-                        enemyresist = 0;
-                        break;
-                }
-
-                switch (uOpponent.WeaponMetalType)
-                {
-                    case MetalType.Copper:
-                        enemydamage = 1.1;
-                        break;
-                    case MetalType.Bronze:
-                        enemydamage = 1.2;
-                        break;
-                    case MetalType.Iron:
-                        enemydamage = 1.3;
-                        break;
-                    case MetalType.Steel:
-                        enemydamage = 1.4;
-                        break;
-                    default:
-                        enemydamage = 1;
-                        break;
-                }
-
-                switch (WeaponMetalType)
-                {
-                    case MetalType.Copper:
-                        damage = 1.1;
-                        break;
-                    case MetalType.Bronze:
-                        damage = 1.2;
-                        break;
-                    case MetalType.Iron:
-                        damage = 1.3;
-                        break;
-                    case MetalType.Steel:
-                        damage = 1.4;
-                        break;
-                    default:
-                        damage = 1;
-                        break;
-                }
-
-                //your max damage is affected by how good enemy armor is, same vs same metal 
-                //type results in a damage of 1, which means no damage change.
+                damage = Weapon.GetDamage();
+                enemydamage = uOpponent.Weapon.GetDamage();
+                
+                //your max damage is affected by how good enemy armor is, same vs same metal type
+                //results in a damage modifier of 1, which means no damage change. (Number * 1 = Number)
                 //If you have a step above (EX Steel weapon vs Iron armor) you get a 10% boost per step up.
                 damage = damage - enemyresist;
                 enemydamage = enemydamage - resist;
 
-
-                //If you have less than 25% of your total morale, then your morale effect is only 80% effective (.8)
+                //If you have less than 25% of your total morale, then your damage is only 80% effective (.8)
                 //which means 20% less damage
-                //If you have less than 50% of your total morale, then your morale effect is only 90% effective (.9)
+                //If you have less than 50% of your total morale, then your damage is only 90% effective (.9)
                 //which means 10% less damage
                 //same calculation for opponents
-                if (((double)CurrentMorale / TotalMorale) < .25)
-                {
-                    moraleaffect = .8;
-                }
-                else if (((double)CurrentMorale / TotalMorale) < .5)
-                {
-                    moraleaffect = .9;
-                }
-
-                if (((double)uOpponent.CurrentMorale / uOpponent.TotalMorale) < .25)
-                {
-                    enemymoraleaffect = .8;
-                }
-                else if (((double)uOpponent.CurrentMorale / uOpponent.TotalMorale) < .5)
-                {
-                    enemymoraleaffect = .9;
-                }
+                moraleaffect = GetMoraleEffect();
+                enemymoraleaffect = uOpponent.GetMoraleEffect();
                 
                 //your current morale affects your max damage
                 damage = moraleaffect * damage;
                 enemydamage = enemymoraleaffect * enemydamage;
 
-                //basedamage represents how many soldiers you can kill
+                //myKillsInflicted represents how many soldiers you can kill
                 //damage represents how much to increase or decrease this base amount based on morale and equipment differences.
-                //EX. your base damage is 20 soldiers killed per round, you are charging so you get a 20% boost (20 * 1.2)
-                //so your base damage becomes 24 soldiers killed in this round.
+                //EX. your myKillsInflicted is 20 soldiers killed per round, you are charging so you get a 20% boost (20 * 1.2)
+                //so your myKillsInflicted becomes 24 soldiers killed in this round.
                 //your total number of soldiers killed is spread evenly between all you're current opponents.
-                basedamage = (basedamage * damage)/ CurrentOpponents.Count;
-                enemybasedamage = (enemybasedamage * enemydamage)/ uOpponent.CurrentOpponents.Count;
+                myKillsInflicted = (myKillsInflicted * damage)/ CurrentOpponents.Count;
+                enemyKillsInflicted = (enemyKillsInflicted * enemydamage)/ uOpponent.CurrentOpponents.Count;
 
-                CalculatePostBattleMorale(basedamage, enemybasedamage, this, uOpponent);
+                CalculatePostBattleMorale(myKillsInflicted, enemyKillsInflicted, this, uOpponent);
 
-                uOpponent.KillSoldiers((int)basedamage);
-                KillSoldiers((int)enemybasedamage);
-
+                uOpponent.KillSoldiers((int)myKillsInflicted);
+                KillSoldiers((int)enemyKillsInflicted);
             }
 
         }
