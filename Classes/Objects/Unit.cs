@@ -190,7 +190,10 @@ namespace TurnBasedStrategy
         }
 
         //calculate morale shocks based on 2 fighting units numbers and equipment
-        public void CalculateMoraleShocks(Unit UnitA, Unit UnitB)
+        //  -you get a morale shock if the enemy has 20% more soldiers and 
+        //    if the enemy has double the soldiers (note that this stacks)
+        //  -you also get a morale shock if the enemy armor is higher quality
+        public void CalculatePreBattleMoraleShocks(Unit UnitA, Unit UnitB)
         {
             if (UnitA.SoldierCount > ((double)UnitB.SoldierCount * 1.2))
             {
@@ -242,7 +245,7 @@ namespace TurnBasedStrategy
 
         //calculates the morale shocks to be administered to the losing side of one 'round' of combat
         //decided by who did more damage as a percent of total soldiers.
-        public void CalculatePostBattleMorale(double UnitADmg, double UnitBDmg, Unit UnitA, Unit UnitB)
+        public void CalculatePostBattleMoraleShocks(double UnitADmg, double UnitBDmg, Unit UnitA, Unit UnitB)
         {
             double Apercentdmg;
             double Bpercentdmg;
@@ -299,7 +302,9 @@ namespace TurnBasedStrategy
                 randDamage = getRandomBaseDamage();
                 double myKillsInflicted = (double)SoldierCount * randDamage;
                 
-                CalculateMoraleShocks(this, uOpponent);
+                //this takes care of morale shocks that can happen before combat, 
+                //such as being outnumbered, or seeing the enemy has better equipment
+                CalculatePreBattleMoraleShocks(this, uOpponent);
 
                 if ((this.IsRouting ) || (uOpponent.IsRouting))
                 {
@@ -322,14 +327,16 @@ namespace TurnBasedStrategy
                 myKillsInflicted = myKillsInflicted * Weapon.GetKillsModifier(uOpponent.IsMounted);
                 enemyKillsInflicted = enemyKillsInflicted * uOpponent.Weapon.GetKillsModifier(IsMounted);
 
+                //armor resist based on metal type
                 resist = Armor.GetResist();
                 enemyresist = uOpponent.Armor.GetResist();
 
+                //weapon damage based on metal type
                 damage = Weapon.GetDamage();
                 enemydamage = uOpponent.Weapon.GetDamage();
                 
                 //your max damage is affected by how good enemy armor is, same vs same metal type
-                //results in a damage modifier of 1, which means no damage change. (Number * 1 = Number)
+                //results in a damage modifier of 1, which means no damage change. (x * 1 = x)
                 //If you have a step above (EX Steel weapon vs Iron armor) you get a 10% boost per step up.
                 damage = damage - enemyresist;
                 enemydamage = enemydamage - resist;
@@ -350,11 +357,12 @@ namespace TurnBasedStrategy
                 //damage represents how much to increase or decrease this base amount based on morale and equipment differences.
                 //EX. your myKillsInflicted is 20 soldiers killed per round, you are charging so you get a 20% boost (20 * 1.2)
                 //so your myKillsInflicted becomes 24 soldiers killed in this round.
-                //your total number of soldiers killed is spread evenly between all you're current opponents.
+                //your total number of soldiers killed is spread evenly between all your current opponents.
                 myKillsInflicted = (myKillsInflicted * damage)/ CurrentOpponents.Count;
                 enemyKillsInflicted = (enemyKillsInflicted * enemydamage)/ uOpponent.CurrentOpponents.Count;
 
-                CalculatePostBattleMorale(myKillsInflicted, enemyKillsInflicted, this, uOpponent);
+                //Morale based on how well you did in a battle
+                CalculatePostBattleMoraleShocks(myKillsInflicted, enemyKillsInflicted, this, uOpponent);
 
                 uOpponent.KillSoldiers((int)myKillsInflicted);
                 KillSoldiers((int)enemyKillsInflicted);

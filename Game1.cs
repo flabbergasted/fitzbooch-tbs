@@ -45,6 +45,7 @@ namespace TurnBasedStrategy
 
             uUnit1.AddOpponent(uUnit2);
             uUnit2.ChargeBonus = true;
+            
             while (true)
             {
             uUnit1.ProcessBattles();
