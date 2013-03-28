@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using TurnBasedStrategy.Classes.Objects.Items;
+using TurnBasedStrategy.Classes.Objects.Terrain;
 
 namespace TurnBasedStrategy
 {

@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 using TurnBasedStrategy.Classes.Objects.Items;
+using TurnBasedStrategy.Classes.Objects.Terrain;
 
 namespace TurnBasedStrategy
 {

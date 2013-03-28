@@ -26,7 +26,6 @@ namespace TurnBasedStrategy
                     break;
                 default:
                     return "TEST";
-                    break;
             }
 
             NameCategories = srReader.ReadToEnd().Split(splitchar, System.StringSplitOptions.RemoveEmptyEntries);

@@ -122,10 +122,11 @@
     <Compile Include="Classes\Objects\Items\Metal.cs" />
     <Compile Include="Classes\Objects\Object.cs" />
     <Compile Include="Classes\Objects\Items\Weapon.cs" />
+    <Compile Include="Classes\Objects\Terrain\Biome.cs" />
+    <Compile Include="Classes\Objects\Terrain\Terrain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Classes\Objects\Terrain.cs" />
     <Compile Include="Classes\Objects\Unit.cs" />
   </ItemGroup>
   <ItemGroup>
